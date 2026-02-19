@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="darkreader-lock" />
+    <title>psynyde.sh</title>
+    <link
+      rel="shortcut icon"
+      href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAFVBMVEUAAACAgIDAwMAAAAD///8A//8AgIA+In3bAAAAAXRSTlMAQObYZgAAAAFvck5UAc+id5oAAABVSURBVAjXTc7BDYAwCEBRGieguIB0AZDoAIZZ3H8EQTT6L32HQgD4hVG+jZkXCczuB94wWwvb2Qv7C8UHMUU5T2amo9Zwp4BmARqZQPMsvkyWyXfCBTZQDKjQz8WDAAAAAElFTkSuQmCC"
+    />
+    <style>
+      @view-transition {
+        navigation: auto;
+      }
+      @font-face {
+        font-family: "W95FA";
+        src: url("/w95fa.woff2") format("woff2");
+        font-style: normal;
+        font-display: swap;
+        unicode-range:
+          U+20-5F, U+61-7E, U+A0, U+A7, U+AD, U+C0-CF, U+D1-D6, U+D8-DD,
+          U+DF-EF, U+F1-F6, U+F8-FD, U+FF, U+152-153, U+178, U+2018-2019,
+          U+201C-201D;
+      }
+      :root {
+        --bg: #c0c0c0;
+        --dark: #0a0a0a;
+        --mid: #808080;
+        --light: #dfdfdf;
+        --white: #fff;
+        --blue: #000080;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 12px;
+        background: #008080;
+        font-family: "W95FA", "MS Sans Serif", Tahoma, Arial, sans-serif;
+        font-size: max(calc(9px + 0.390625vw), 15px);
+        color: #000;
+      }
+      .window {
+        width: 100%;
+        max-width: 720px;
+        margin: 0 auto;
+        background: var(--bg);
+        box-shadow:
+          inset -1px -1px var(--dark),
+          inset 1px 1px var(--white),
+          inset -2px -2px var(--mid),
+          inset 2px 2px var(--light);
+        padding: 3px;
+      }
+      .title-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(90deg, var(--blue), #1084d0);
+        padding: 3px;
+        margin-bottom: 2px;
+      }
+      .title-bar-text {
+        color: #fff;
+        font-weight: bold;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .title-bar-controls {
+        display: flex;
+        gap: 2px;
+      }
+      .title-bar-controls button {
+        width: 16px;
+        height: 14px;
+        min-width: 16px;
+        background-color: var(--bg);
+        border: none;
+        box-shadow:
+          inset -1px -1px var(--dark),
+          inset 1px 1px var(--white);
+        padding: 0;
+        cursor: pointer;
+      }
+      .title-bar-controls button:active {
+        box-shadow:
+          inset 1px 1px var(--dark),
+          inset -1px -1px var(--white);
+      }
+      .title-bar-controls button.minimize {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='6' height='2' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23000' d='M0 0h6v2H0z'/%3E%3C/svg%3E");
+        background-position: bottom 3px left 4px;
+        background-repeat: no-repeat;
+      }
+      .title-bar-controls button.maximize {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='9' height='9' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M9 0H0v9h9V0zM8 2H1v6h7V2z' fill='%23000'/%3E%3C/svg%3E");
+        background-position: top 2px left 3px;
+        background-repeat: no-repeat;
+      }
+      .title-bar-controls button.close {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='8' height='7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0 0h2v1h1v1h2V1h1V0h2v1H7v1H6v1H5v1h1v1h1v1h1v1H6V6H5V5H3v1H2v1H0V6h1V5h1V4h1V3H2V2H1V1H0V0z' fill='%23000'/%3E%3C/svg%3E");
+        background-position: top 3px left 4px;
+        background-repeat: no-repeat;
+        margin-left: 2px;
+      }
+      .tabs {
+        display: flex;
+        gap: 2px;
+        margin-bottom: 8px;
+        padding: 2px 4px 0 4px;
+      }
+      .tab {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 75px;
+        min-height: 23px;
+        padding: 0 12px;
+        background: var(--bg);
+        border: none;
+        border-radius: 0;
+        text-decoration: none;
+        color: transparent;
+        text-shadow: 0 0 #000;
+        cursor: pointer;
+        box-sizing: border-box;
+        box-shadow:
+          inset -1px -1px var(--dark),
+          inset 1px 1px var(--white),
+          inset -2px -2px var(--mid),
+          inset 2px 2px var(--light);
+      }
+      .tab:hover {
+        text-decoration: none;
+      }
+      .tab:active {
+        box-shadow:
+          inset -1px -1px var(--white),
+          inset 1px 1px var(--dark),
+          inset -2px -2px var(--light),
+          inset 2px 2px var(--mid);
+        text-shadow: 1px 1px #000;
+      }
+      .tab.active {
+        background: var(--bg);
+        box-shadow:
+          inset -1px -1px var(--white),
+          inset 1px 1px var(--dark),
+          inset -2px -2px var(--light),
+          inset 2px 2px var(--mid);
+        text-shadow: 1px 1px #000;
+        position: static;
+        z-index: auto;
+      }
+      .tab:focus {
+        outline: 1px dotted #000;
+        outline-offset: -4px;
+      }
+      .window-body {
+        margin: 8px;
+      }
+      .panel {
+        background: #fff;
+        padding: 8px;
+        margin-bottom: 10px;
+        box-shadow:
+          inset -1px -1px #fff,
+          inset 1px 1px var(--mid),
+          inset -2px -2px var(--light),
+          inset 2px 2px var(--dark);
+      }
+      h1 {
+        font-size: 1.5em;
+        margin: 0 0 6px;
+      }
+      h2 {
+        font-size: 1.2em;
+        margin: 10px 0 4px;
+        font-weight: bold;
+      }
+      p {
+        margin: 4px 0;
+      }
+      ul {
+        margin: 4px 0;
+        padding-left: 18px;
+      }
+      li {
+        margin-bottom: 3px;
+      }
+      a {
+        color: #0000ff;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      /*global end*/
+      .info-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .info-table tr {
+        border-bottom: 1px solid #dfdfdf;
+      }
+      .info-table td {
+        padding: 4px 6px;
+        font-size: 1em;
+      }
+      .info-table td:first-child {
+        font-weight: bold;
+        width: 140px;
+        color: #000;
+      }
+      .info-table td:last-child {
+        color: #000080;
+      }
+      .section-header {
+        background: var(--bg);
+        font-weight: bold;
+        padding: 4px 6px !important;
+        border-top: 2px solid var(--mid);
+        border-bottom: 1px solid var(--mid);
+      }
+      @media (max-width: 480px) {
+        body {
+          padding: 6px;
+        }
+        .window-body {
+          margin: 6px;
+        }
+        h1 {
+          font-size: 1.45em;
+        }
+        .info-table td:first-child {
+          width: 110px;
+          font-size: 0.95em;
+        }
+        .info-table td:last-child {
+          font-size: 0.95em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="window">
+      <div class="title-bar">
+        <div class="title-bar-text">psynyde.sh - Netscape</div>
+        <div class="title-bar-controls">
+          <button class="minimize"></button>
+          <button class="maximize"></button>
+          <button class="close"></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="tabs">
+          <a href="/" class="tab">About</a>
+          <a href="/sysinfo" class="tab active">System Info</a>
+          <a href="/guestbook" class="tab">Guestbook</a>
+        </div>
+        <div class="panel">
+          <h1>System Information</h1>
+          <table class="info-table">
+            <tr>
+              <td colspan="2" class="section-header">Hardware Information</td>
+            </tr>
+            <tr>
+              <td>Chip Model:</td>
+              <td id="chip-model">Loading...</td>
+            </tr>
+            <tr>
+              <td>CPU Cores:</td>
+              <td id="cpu-cores">-</td>
+            </tr>
+            <tr>
+              <td>Flash Size:</td>
+              <td id="flash-size">-</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="section-header">Network Information</td>
+            </tr>
+            <tr>
+              <td>IP Address:</td>
+              <td id="ip-address">-</td>
+            </tr>
+            <tr>
+              <td>WiFi MAC:</td>
+              <td id="wifi-mac">-</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="section-header">Memory Information</td>
+            </tr>
+            <tr>
+              <td>Total Heap:</td>
+              <td id="total-heap">-</td>
+            </tr>
+            <tr>
+              <td>Free Heap:</td>
+              <td id="free-heap">-</td>
+            </tr>
+            <tr>
+              <td>Min Free Heap:</td>
+              <td id="min-free-heap">-</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="section-header">System</td>
+            </tr>
+            <tr>
+              <td>Uptime:</td>
+              <td id="uptime">-</td>
+            </tr>
+            <tr>
+              <td>Temperature:</td>
+              <td id="temperature">-</td>
+            </tr>
+          </table>
+        </div>
+        <div class="panel">
+          <table class="info-table">
+            <thead>
+              <tr>
+                <td colspan="4" class="section-header">Storage Information</td>
+              </tr>
+              <tr>
+                <td style="font-weight: bold">Label</td>
+                <td style="font-weight: bold">Type</td>
+                <td style="font-weight: bold">Subtype</td>
+                <td
+                  style="font-weight: bold; text-align: right; color: inherit"
+                >
+                  Usage
+                </td>
+              </tr>
+            </thead>
+            <tbody id="partitions-tbody">
+              <!-- JS will populate this -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <script>
+      let uptimeInterval;
+
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchSystemInfo();
+      });
+
+      function formatUptime(totalSeconds) {
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        return `${hours} h ${minutes} min ${seconds} s`;
+      }
+
+      function fetchSystemInfo() {
+        if (uptimeInterval) {
+          clearInterval(uptimeInterval);
+        }
+
+        fetch("/api/sysinfo")
+          .then((r) => r.json())
+          .then((d) => {
+            document.getElementById("chip-model").textContent = d.chip_model;
+            document.getElementById("cpu-cores").textContent = d.cpu_cores;
+            document.getElementById("flash-size").textContent = d.flash_size;
+            document.getElementById("ip-address").textContent = d.ip_address;
+            document.getElementById("wifi-mac").textContent = d.wifi_mac;
+            document.getElementById("total-heap").textContent = d.total_heap;
+            document.getElementById("free-heap").textContent = d.free_heap;
+            document.getElementById("min-free-heap").textContent =
+              d.min_free_heap;
+            document.getElementById("temperature").textContent = d.temperature;
+
+            const partitionsTbody = document.getElementById("partitions-tbody");
+            partitionsTbody.innerHTML = ""; // Clear old data
+
+            if (d.partitions && d.partitions.length > 0) {
+              d.partitions.forEach((p) => {
+                const row = document.createElement("tr");
+
+                const labelCell = document.createElement("td");
+                labelCell.textContent = p.label;
+                row.appendChild(labelCell);
+
+                const typeCell = document.createElement("td");
+                typeCell.textContent = p.type;
+                row.appendChild(typeCell);
+
+                const subtypeCell = document.createElement("td");
+                subtypeCell.textContent = p.subtype;
+                row.appendChild(subtypeCell);
+
+                const sizeCell = document.createElement("td");
+                sizeCell.style.textAlign = "right";
+                if (p.used !== undefined) {
+                  const usedKB = (p.used / 1024).toFixed(0);
+                  const totalKB = (p.size / 1024).toFixed(0);
+                  sizeCell.textContent = `${usedKB} KB / ${totalKB} KB`;
+                } else {
+                  sizeCell.textContent = `${(p.size / 1024).toFixed(0)} KB`;
+                }
+                row.appendChild(sizeCell);
+
+                partitionsTbody.appendChild(row);
+              });
+            }
+
+            let uptimeSeconds = d.uptime;
+            const uptimeElement = document.getElementById("uptime");
+            uptimeElement.textContent = formatUptime(uptimeSeconds);
+
+            uptimeInterval = setInterval(() => {
+              uptimeSeconds++;
+              uptimeElement.textContent = formatUptime(uptimeSeconds);
+            }, 1000);
+          })
+          .catch((e) => console.log(e));
+      }
+    </script>
+  </body>
+</html>

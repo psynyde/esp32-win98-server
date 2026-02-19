@@ -1,0 +1,35 @@
+menu "Web server config"
+    config WIFI_SSID
+        string "WiFi SSID"
+        help
+            The SSID of the WiFi network to connect to.
+
+    config WIFI_PASS
+        string "WiFi Password"
+        help
+            The password of the WiFi network.
+
+    config MAX_GUESTBOOK_ENTRIES
+        int "Maximum Guestbook Entries"
+        default 15
+        help
+            The maximum number of entries to store in the guestbook.
+
+    config GUESTBOOK_FILE
+        string "Guestbook File Path"
+        default "/littlefs/guestbook.json"
+        help
+            The path to the guestbook JSON file on the LittleFS partition.
+
+    config STORAGE_LABEL
+        string "Storage Partition Label"
+        default "storage"
+        help
+            The label of the storage partition.
+
+    config LED_GPIO
+        int "LED GPIO Pin"
+        default 2
+        help
+            The GPIO pin connected to the LED.
+endmenu

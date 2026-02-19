@@ -1,0 +1,32 @@
+# Build outputs
+build/
+*.bin
+*.elf
+*.map
+*.log
+
+# ESP-IDF config
+sdkconfig
+sdkconfig.old
+
+# ESP-IDF component manager
+managed_components/
+dependencies.lock
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+
+# Python
+__pycache__/
+*.pyc
+
+# Direnv / Nix
+.direnv/
+.cache/
+result
+result-*
+
+# Your site build
+main/dist/
+TODO.txt

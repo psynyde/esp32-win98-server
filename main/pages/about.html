@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="darkreader-lock" />
+    <title>psynyde.sh</title>
+    <link
+      rel="shortcut icon"
+      href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAFVBMVEUAAACAgIDAwMAAAAD///8A//8AgIA+In3bAAAAAXRSTlMAQObYZgAAAAFvck5UAc+id5oAAABVSURBVAjXTc7BDYAwCEBRGieguIB0AZDoAIZZ3H8EQTT6L32HQgD4hVG+jZkXCczuB94wWwvb2Qv7C8UHMUU5T2amo9Zwp4BmARqZQPMsvkyWyXfCBTZQDKjQz8WDAAAAAElFTkSuQmCC"
+    />
+    <style>
+      @view-transition {
+        navigation: auto;
+      }
+      @font-face {
+        font-family: "W95FA";
+        src: url("/w95fa.woff2") format("woff2");
+        font-style: normal;
+        font-display: swap;
+        unicode-range:
+          U+20-5F, U+61-7E, U+A0, U+A7, U+AD, U+C0-CF, U+D1-D6, U+D8-DD,
+          U+DF-EF, U+F1-F6, U+F8-FD, U+FF, U+152-153, U+178, U+2018-2019,
+          U+201C-201D;
+      }
+      :root {
+        --bg: #c0c0c0;
+        --dark: #0a0a0a;
+        --mid: #808080;
+        --light: #dfdfdf;
+        --white: #fff;
+        --blue: #000080;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 12px;
+        background: #008080;
+        font-family: "W95FA", "MS Sans Serif", Tahoma, Arial, sans-serif;
+        font-size: max(calc(9px + 0.390625vw), 15px);
+        color: #000;
+      }
+      .window {
+        width: 100%;
+        max-width: 720px;
+        margin: 0 auto;
+        background: var(--bg);
+        box-shadow:
+          inset -1px -1px var(--dark),
+          inset 1px 1px var(--white),
+          inset -2px -2px var(--mid),
+          inset 2px 2px var(--light);
+        padding: 3px;
+      }
+      .title-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(90deg, var(--blue), #1084d0);
+        padding: 3px;
+        margin-bottom: 2px;
+      }
+      .title-bar-text {
+        color: #fff;
+        font-weight: bold;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .title-bar-controls {
+        display: flex;
+        gap: 2px;
+      }
+      .title-bar-controls button {
+        width: 16px;
+        height: 14px;
+        min-width: 16px;
+        background-color: var(--bg);
+        border: none;
+        box-shadow:
+          inset -1px -1px var(--dark),
+          inset 1px 1px var(--white);
+        padding: 0;
+        cursor: pointer;
+      }
+      .title-bar-controls button:active {
+        box-shadow:
+          inset 1px 1px var(--dark),
+          inset -1px -1px var(--white);
+      }
+      .title-bar-controls button.minimize {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='6' height='2' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23000' d='M0 0h6v2H0z'/%3E%3C/svg%3E");
+        background-position: bottom 3px left 4px;
+        background-repeat: no-repeat;
+      }
+      .title-bar-controls button.maximize {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='9' height='9' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M9 0H0v9h9V0zM8 2H1v6h7V2z' fill='%23000'/%3E%3C/svg%3E");
+        background-position: top 2px left 3px;
+        background-repeat: no-repeat;
+      }
+      .title-bar-controls button.close {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='8' height='7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0 0h2v1h1v1h2V1h1V0h2v1H7v1H6v1H5v1h1v1h1v1h1v1H6V6H5V5H3v1H2v1H0V6h1V5h1V4h1V3H2V2H1V1H0V0z' fill='%23000'/%3E%3C/svg%3E");
+        background-position: top 3px left 4px;
+        background-repeat: no-repeat;
+        margin-left: 2px;
+      }
+      .tabs {
+        display: flex;
+        gap: 2px;
+        margin-bottom: 8px;
+        padding: 2px 4px 0 4px;
+      }
+      .tab {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 75px;
+        min-height: 23px;
+        padding: 0 12px;
+        background: var(--bg);
+        border: none;
+        border-radius: 0;
+        text-decoration: none;
+        color: transparent;
+        text-shadow: 0 0 #000;
+        cursor: pointer;
+        box-sizing: border-box;
+        box-shadow:
+          inset -1px -1px var(--dark),
+          inset 1px 1px var(--white),
+          inset -2px -2px var(--mid),
+          inset 2px 2px var(--light);
+      }
+      .tab:hover {
+        text-decoration: none;
+      }
+      .tab:active {
+        box-shadow:
+          inset -1px -1px var(--white),
+          inset 1px 1px var(--dark),
+          inset -2px -2px var(--light),
+          inset 2px 2px var(--mid);
+        text-shadow: 1px 1px #000;
+      }
+      .tab.active {
+        background: var(--bg);
+        box-shadow:
+          inset -1px -1px var(--white),
+          inset 1px 1px var(--dark),
+          inset -2px -2px var(--light),
+          inset 2px 2px var(--mid);
+        text-shadow: 1px 1px #000;
+        position: static;
+        z-index: auto;
+      }
+      .tab:focus {
+        outline: 1px dotted #000;
+        outline-offset: -4px;
+      }
+      .window-body {
+        margin: 8px;
+      }
+      .panel {
+        background: #fff;
+        padding: 8px;
+        margin-bottom: 10px;
+        box-shadow:
+          inset -1px -1px #fff,
+          inset 1px 1px var(--mid),
+          inset -2px -2px var(--light),
+          inset 2px 2px var(--dark);
+      }
+      h1 {
+        font-size: 1.5em;
+        margin: 0 0 6px;
+      }
+      h2 {
+        font-size: 1.2em;
+        margin: 10px 0 4px;
+        font-weight: bold;
+      }
+      p {
+        margin: 4px 0;
+      }
+      ul {
+        margin: 4px 0;
+        padding-left: 18px;
+      }
+      li {
+        margin-bottom: 3px;
+      }
+      a {
+        color: #0000ff;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      /* global end*/
+      .project {
+        margin-bottom: 8px;
+      }
+      .project-title {
+        font-weight: bold;
+      }
+      .badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+      }
+      .badges img {
+        height: 31px;
+        image-rendering: pixelated;
+      }
+      @media (max-width: 480px) {
+        body {
+          padding: 6px;
+        }
+        .window-body {
+          margin: 6px;
+        }
+        h1 {
+          font-size: 1.45em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="window">
+      <div class="title-bar">
+        <div class="title-bar-text">psynyde.sh - Netscape</div>
+        <div class="title-bar-controls">
+          <button class="minimize"></button>
+          <button class="maximize"></button>
+          <button class="close"></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="tabs">
+          <a href="/" class="tab active">About</a>
+          <a href="/sysinfo" class="tab">System Info</a>
+          <a href="/guestbook" class="tab">Guestbook</a>
+        </div>
+        <div class="panel">
+          <h1>About Me</h1>
+          <p>
+            Hello~ I'm
+            <strong>psynyde</strong>
+            , from
+            <strong>[REDACTED]</strong>
+            .
+          </p>
+          <p>
+            I'm a muslim, a student, and a self-proclaimed software engineer who
+            enjoys low-level programming, algorithm research, and data oriented
+            programming. and ZIG!!⚡
+          </p>
+        </div>
+        <div class="panel">
+          <h1>Social Links</h1>
+          <ul>
+            <li>
+              Github:
+              <a href="https://github.com/psynyde">psynyde</a>
+            </li>
+            <li>
+              Twitter/X:
+              <a href="https://x.com/pxynyde">pxynyde</a>
+            </li>
+            <li>
+              Email:
+              <a href="mailto:pxynyde@proton.me">pxynyde@proton.me</a>
+            </li>
+            <li>
+              GPG:
+              <a href="https://keys.openpgp.org/search?q=72BB0F6BBDB8A5C2">
+                psynyde (0x72BB0F6BBDB8A5C2)
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h1>Projects</h1>
+          <ul>
+            <li>
+              <div class="project">
+                <div class="project-title">zw-type</div>
+                <p>
+                  typing program using input method unstable v2 protocol on
+                  Wayland compositors. Written in Zig
+                </p>
+                <p>
+                  <strong>mit</strong>
+                  |
+                  <a href="https://github.com/psynyde/zw-type">repo</a>
+                </p>
+              </div>
+            </li>
+            <li>
+              <div class="project">
+                <div class="project-title">iouring-tcp-server</div>
+                <p>Fast and efficient TCP server using liburing.</p>
+                <p>
+                  <strong>mit</strong>
+                  |
+                  <a href="https://github.com/psynyde/iouring-tcp-server">
+                    repo
+                  </a>
+                </p>
+              </div>
+            </li>
+            <li>
+              <div class="project">
+                <div class="project-title">esp32-win98-server</div>
+                <p>Windows 98 themed web interface running on ESP32.</p>
+                <p>
+                  <strong>mit</strong>
+                  |
+                  <a href="https://github.com/psynyde/esp32-win98-server">
+                    repo
+                  </a>
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="panel">
+          <div class="badges">
+            <a href="https://nixos.org/" target="_blank"
+              ><img src="/built_with_nix.gif" alt="Nix"
+            /></a>
+            <a href="https://neovim.io/" target="_blank"
+              ><img src="/neovim.png" alt="Neovim"
+            /></a>
+            <a href="https://ublockorigin.com/" target="_blank"
+              ><img src="/ublockorigin.png" alt="uBlock"
+            /></a>
+            <a
+              href="https://www.youtube.com/watch?v=-BxOYCKdJW4"
+              target="_blank"
+              ><img src="/netscape.gif" alt="Netscape"
+            /></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

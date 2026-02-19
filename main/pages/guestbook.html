@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="darkreader-lock" />
+    <title>psynyde.sh</title>
+    <link
+      rel="shortcut icon"
+      href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAFVBMVEUAAACAgIDAwMAAAAD///8A//8AgIA+In3bAAAAAXRSTlMAQObYZgAAAAFvck5UAc+id5oAAABVSURBVAjXTc7BDYAwCEBRGieguIB0AZDoAIZZ3H8EQTT6L32HQgD4hVG+jZkXCczuB94wWwvb2Qv7C8UHMUU5T2amo9Zwp4BmARqZQPMsvkyWyXfCBTZQDKjQz8WDAAAAAElFTkSuQmCC"
+    />
+    <style>
+      @view-transition {
+        navigation: auto;
+      }
+      @font-face {
+        font-family: "W95FA";
+        src: url("/w95fa.woff2") format("woff2");
+        font-style: normal;
+        font-display: swap;
+        unicode-range:
+          U+20-5F, U+61-7E, U+A0, U+A7, U+AD, U+C0-CF, U+D1-D6, U+D8-DD,
+          U+DF-EF, U+F1-F6, U+F8-FD, U+FF, U+152-153, U+178, U+2018-2019,
+          U+201C-201D;
+      }
+      :root {
+        --bg: #c0c0c0;
+        --dark: #0a0a0a;
+        --mid: #808080;
+        --light: #dfdfdf;
+        --white: #fff;
+        --blue: #000080;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 12px;
+        background: #008080;
+        font-family: "W95FA", "MS Sans Serif", Tahoma, Arial, sans-serif;
+        font-size: max(calc(9px + 0.390625vw), 15px);
+        color: #000;
+      }
+      .window {
+        width: 100%;
+        max-width: 720px;
+        margin: 0 auto;
+        background: var(--bg);
+        box-shadow:
+          inset -1px -1px var(--dark),
+          inset 1px 1px var(--white),
+          inset -2px -2px var(--mid),
+          inset 2px 2px var(--light);
+        padding: 3px;
+      }
+      .title-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(90deg, var(--blue), #1084d0);
+        padding: 3px;
+        margin-bottom: 2px;
+      }
+      .title-bar-text {
+        color: #fff;
+        font-weight: bold;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .title-bar-controls {
+        display: flex;
+        gap: 2px;
+      }
+      .title-bar-controls button {
+        width: 16px;
+        height: 14px;
+        min-width: 16px;
+        background-color: var(--bg);
+        border: none;
+        box-shadow:
+          inset -1px -1px var(--dark),
+          inset 1px 1px var(--white);
+        padding: 0;
+        cursor: pointer;
+      }
+      .title-bar-controls button:active {
+        box-shadow:
+          inset 1px 1px var(--dark),
+          inset -1px -1px var(--white);
+      }
+      .title-bar-controls button.minimize {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='6' height='2' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23000' d='M0 0h6v2H0z'/%3E%3C/svg%3E");
+        background-position: bottom 3px left 4px;
+        background-repeat: no-repeat;
+      }
+      .title-bar-controls button.maximize {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='9' height='9' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M9 0H0v9h9V0zM8 2H1v6h7V2z' fill='%23000'/%3E%3C/svg%3E");
+        background-position: top 2px left 3px;
+        background-repeat: no-repeat;
+      }
+      .title-bar-controls button.close {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='8' height='7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0 0h2v1h1v1h2V1h1V0h2v1H7v1H6v1H5v1h1v1h1v1h1v1H6V6H5V5H3v1H2v1H0V6h1V5h1V4h1V3H2V2H1V1H0V0z' fill='%23000'/%3E%3C/svg%3E");
+        background-position: top 3px left 4px;
+        background-repeat: no-repeat;
+        margin-left: 2px;
+      }
+      .tabs {
+        display: flex;
+        gap: 2px;
+        margin-bottom: 8px;
+        padding: 2px 4px 0 4px;
+      }
+      .tab {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 75px;
+        min-height: 23px;
+        padding: 0 12px;
+        background: var(--bg);
+        border: none;
+        border-radius: 0;
+        text-decoration: none;
+        color: transparent;
+        text-shadow: 0 0 #000;
+        cursor: pointer;
+        box-sizing: border-box;
+        box-shadow:
+          inset -1px -1px var(--dark),
+          inset 1px 1px var(--white),
+          inset -2px -2px var(--mid),
+          inset 2px 2px var(--light);
+      }
+      .tab:hover {
+        text-decoration: none;
+      }
+      .tab:active {
+        box-shadow:
+          inset -1px -1px var(--white),
+          inset 1px 1px var(--dark),
+          inset -2px -2px var(--light),
+          inset 2px 2px var(--mid);
+        text-shadow: 1px 1px #000;
+      }
+      .tab.active {
+        background: var(--bg);
+        box-shadow:
+          inset -1px -1px var(--white),
+          inset 1px 1px var(--dark),
+          inset -2px -2px var(--light),
+          inset 2px 2px var(--mid);
+        text-shadow: 1px 1px #000;
+        position: static;
+        z-index: auto;
+      }
+      .tab:focus {
+        outline: 1px dotted #000;
+        outline-offset: -4px;
+      }
+      .window-body {
+        margin: 8px;
+      }
+      .panel {
+        background: #fff;
+        padding: 8px;
+        margin-bottom: 10px;
+        box-shadow:
+          inset -1px -1px #fff,
+          inset 1px 1px var(--mid),
+          inset -2px -2px var(--light),
+          inset 2px 2px var(--dark);
+      }
+      h1 {
+        font-size: 1.5em;
+        margin: 0 0 6px;
+      }
+      h2 {
+        font-size: 1.2em;
+        margin: 10px 0 4px;
+        font-weight: bold;
+      }
+      p {
+        margin: 4px 0;
+      }
+      ul {
+        margin: 4px 0;
+        padding-left: 18px;
+      }
+      li {
+        margin-bottom: 3px;
+      }
+      a {
+        color: #0000ff;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      /*global end*/
+      .gb-form {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .gb-input {
+        font-family: inherit;
+        font-size: 1em;
+        padding: 3px 4px;
+        background: var(--white);
+        -webkit-appearance: none;
+        appearance: none;
+        border: none;
+        border-radius: 0;
+        box-shadow:
+          inset -1px -1px var(--white),
+          inset 1px 1px var(--mid),
+          inset -2px -2px var(--light),
+          inset 2px 2px var(--dark);
+      }
+      .gb-btn {
+        font-family: inherit;
+        font-size: 1em;
+        padding: 4px 12px;
+        min-width: 75px;
+        align-self: flex-end;
+        cursor: pointer;
+        background: var(--bg);
+        color: #000;
+        border: none;
+        border-radius: 0;
+        box-sizing: border-box;
+        box-shadow:
+          inset -1px -1px var(--dark),
+          inset 1px 1px var(--white),
+          inset -2px -2px var(--mid),
+          inset 2px 2px var(--light);
+      }
+      .gb-btn:active {
+        box-shadow:
+          inset -1px -1px var(--white),
+          inset 1px 1px var(--dark),
+          inset -2px -2px var(--light),
+          inset 2px 2px var(--mid);
+      }
+      .gb-btn:focus {
+        outline: 1px dotted #000;
+        outline-offset: -4px;
+      }
+      .gb-entry {
+        margin-bottom: 8px;
+        background: #f0f0f0;
+        padding: 4px;
+        border: 1px dotted #808080;
+      }
+      .gb-header {
+        font-weight: bold;
+        color: #000080;
+        margin-bottom: 2px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .gb-msg {
+        white-space: pre-wrap;
+      }
+      .gb-pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+      }
+      @media (max-width: 480px) {
+        body {
+          padding: 6px;
+        }
+        .window-body {
+          margin: 6px;
+        }
+        h1 {
+          font-size: 1.45em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="window">
+      <div class="title-bar">
+        <div class="title-bar-text">psynyde.sh - Netscape</div>
+        <div class="title-bar-controls">
+          <button class="minimize"></button>
+          <button class="maximize"></button>
+          <button class="close"></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="tabs">
+          <a href="/" class="tab">About</a>
+          <a href="/sysinfo" class="tab">System Info</a>
+          <a href="/guestbook" class="tab active">Guestbook</a>
+        </div>
+        <div class="panel">
+          <h1>Sign the Guestbook</h1>
+          <div class="gb-form">
+            <input
+              type="text"
+              id="gb-name"
+              class="gb-input"
+              placeholder="Your Name (max 20 chars)"
+              maxlength="20"
+            />
+            <input
+              type="text"
+              id="gb-msg"
+              class="gb-input"
+              placeholder="Your Message (max 60 chars)"
+              maxlength="60"
+            />
+            <button class="gb-btn" onclick="signGuestbook()">Sign</button>
+          </div>
+        </div>
+        <div class="panel">
+          <h1>Entries</h1>
+          <div id="gb-list">Loading entries...</div>
+          <div id="gb-pagination" class="gb-pagination"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        loadGuestbook(0);
+      });
+
+      function loadGuestbook(page) {
+        fetch(`/api/guestbook?page=${page}`)
+          .then((r) => r.json())
+          .then((data) => {
+            const list = document.getElementById("gb-list");
+            list.innerHTML = "";
+
+            if (data.entries.length === 0) {
+              list.innerHTML = "<p>No signatures yet. Be the first!</p>";
+              document.getElementById("gb-pagination").innerHTML = "";
+              return;
+            }
+
+            data.entries.forEach((entry) => {
+              const div = document.createElement("div");
+              div.className = "gb-entry";
+              div.innerHTML = `<div class='gb-header'><span>${entry.n}</span></div><div class='gb-msg'>${entry.m}</div>`;
+              list.appendChild(div);
+            });
+
+            renderPagination(data.page, data.totalPages);
+          });
+      }
+
+      function renderPagination(page, totalPages) {
+        const pagination = document.getElementById("gb-pagination");
+        pagination.innerHTML = "";
+        if (totalPages <= 1) return;
+
+        const prevButton = document.createElement("button");
+        prevButton.className = "gb-btn";
+        prevButton.innerText = "<< Newer";
+        prevButton.disabled = page === 0;
+        prevButton.onclick = () => loadGuestbook(page - 1);
+
+        const pageInfo = document.createElement("span");
+        pageInfo.innerText = `Page ${page + 1} of ${totalPages}`;
+
+        const nextButton = document.createElement("button");
+        nextButton.className = "gb-btn";
+        nextButton.innerText = "Older >>";
+        nextButton.disabled = page >= totalPages - 1;
+        nextButton.onclick = () => loadGuestbook(page + 1);
+
+        pagination.appendChild(prevButton);
+        pagination.appendChild(pageInfo);
+        pagination.appendChild(nextButton);
+      }
+
+      function signGuestbook() {
+        const name = document.getElementById("gb-name").value;
+        const msg = document.getElementById("gb-msg").value;
+        if (!name || !msg) {
+          alert("Please fill both fields");
+          return;
+        }
+        fetch("/api/sign", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: name,
+            message: msg,
+          }),
+        }).then((r) => {
+          if (r.ok) {
+            document.getElementById("gb-name").value = "";
+            document.getElementById("gb-msg").value = "";
+            loadGuestbook(0);
+          } else {
+            alert("Error signing");
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
