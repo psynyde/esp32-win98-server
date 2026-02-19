@@ -74,3 +74,8 @@ This project uses `treefmt-nix` to format the codebase. To format all files, run
 ```bash
 nix fmt
 ```
+
+## Preview:
+<img width="1246" height="631" alt="image" src="https://github.com/user-attachments/assets/d9bc7382-f74e-4d5f-9f10-66b3883e453c" />
+<img width="1246" height="631" alt="image" src="https://github.com/user-attachments/assets/0d48c7db-3625-4ad0-a80e-fd2ea758c134" />
+<img width="1246" height="631" alt="image" src="https://github.com/user-attachments/assets/fb42d6e4-c486-449f-b772-bb7330e5138e" />
