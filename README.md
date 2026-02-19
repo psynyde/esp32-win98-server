@@ -29,13 +29,13 @@ An ESP-IDF web server that leverages Nix for a reproducible development environm
 
 2.  **Build the Project:**
 
-    Once inside the shell, before running the custom build command:
-    run:
+    Once inside the shell, before running the custom build command run:
     ```bash
+    cp sdkconfig.default sdkconfig
     idf.py menuconfig
     ```
-    and set `Wifi SSID` and `Wifi Password` from the `Web server config` menu.
-    then run:
+    Set `Wifi SSID` and `Wifi Password` from the `Web server config` menu.
+    then:
 
     ```bash
     espbuild
