@@ -48,10 +48,11 @@
                 idf
                 cmake
                 rsync
+                pnpm
                 (writeShellScriptBin "espbuild" ''
                   rsync -a --delete main/assets/ main/dist/
-                  ${pkgs.bun}/bin/bunx html-minifier-next -p comprehensive -I main/pages/ -O main/dist
-                  ${pkgs.bun}/bin/bunx @343dev/optimizt main/dist/
+                  pnpx html-minifier-next -p comprehensive -I main/pages/ -O main/dist
+                  pnpx @343dev/optimizt main/dist/
                   idf.py build
                 '')
               ];
