@@ -47,6 +47,7 @@
               packages = with pkgs; [
                 idf
                 cmake
+                rsync
                 (writeShellScriptBin "espbuild" ''
                   rsync -a --delete main/assets/ main/dist/
                   ${pkgs.bun}/bin/bunx html-minifier-next -p comprehensive -I main/pages/ -O main/dist
